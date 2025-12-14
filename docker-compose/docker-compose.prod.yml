@@ -4,6 +4,7 @@ services:
   migrate:
     image: cliplink-backend-api:latest
     build:
+      context: ../
       args:
         NODE_ENV: production
     command: npm run migration:run
@@ -17,6 +18,7 @@ services:
   backend-api:
     image: cliplink-backend-api:latest
     build:
+      context: ../
       args:
         NODE_ENV: production
     command: npm run start:prod

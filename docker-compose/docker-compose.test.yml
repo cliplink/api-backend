@@ -3,6 +3,7 @@ version: "3.9"
 services:
   backend-api:
     build:
+      context: ../
       args:
         NODE_ENV: development
     command: npm run ci:test
@@ -12,3 +13,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_LOGIN: user
+      DB_PASSWORD: password
+      DB_NAME: cliplink
+      DB_ENABLE_LOGGING: false
