@@ -20,3 +20,5 @@ services:
       DB_PASSWORD: password
       DB_NAME: cliplink
       DB_ENABLE_LOGGING: false
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
