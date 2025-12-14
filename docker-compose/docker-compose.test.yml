@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  backend-api:
+    build:
+      args:
+        NODE_ENV: development
+    command: npm run ci:test
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

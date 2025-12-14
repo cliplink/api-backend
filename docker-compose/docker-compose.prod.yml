@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  migrate:
+    image: cliplink-backend-api:latest
+    build:
+      args:
+        NODE_ENV: production
+    command: npm run migration:run
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: none
+
+  backend-api:
+    image: cliplink-backend-api:latest
+    build:
+      args:
+        NODE_ENV: production
+    command: npm run start:prod
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure

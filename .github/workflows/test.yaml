@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        run: |
+          git clone https://github.com/${{ github.repository }} .
+          git checkout ${{ github.sha }}
+
+      - name: Run tests
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.test.yml \
+            up --build --exit-code-from backend-api
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v

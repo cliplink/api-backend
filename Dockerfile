@@ -1,20 +1,19 @@
-# Build stage
-FROM node:20-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
+
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+
 COPY package*.json ./
-RUN npm ci
+
+# Устанавливаем зависимости
+RUN if [ "$NODE_ENV" = "production" ]; then npm ci --omit=dev; else npm install; fi
+
 COPY . .
-RUN npm run build
 
-#
-FROM node:20-alpine
+# Сборка только для прод
+RUN if [ "$NODE_ENV" = "production" ]; then npm run build; fi
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY --from=builder /app/dist ./dist
-COPY .env .env
-EXPOSE 3000
-
-CMD ["npm", "run", "start:prod"]
+# Команды по режиму
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"production\" ]; then node dist/main.js; else npm run start:dev; fi"]
