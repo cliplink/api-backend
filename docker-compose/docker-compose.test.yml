@@ -22,3 +22,6 @@ services:
       DB_ENABLE_LOGGING: false
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      NATS_SERVER: nats://nats:4222
+      JWT_SECRET: secret
+      ACCESS_TOKEN_EXPIRES: '1d'
