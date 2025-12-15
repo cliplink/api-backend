@@ -3,7 +3,7 @@ export interface ClickCreatedEvent {
   occurredAt: string; // ISO timestamp
   ipHash?: string;
   userAgent?: string;
-  referrer?: string;
+  referer?: string;
   country?: string;
   forwardedFor?: string;
 }

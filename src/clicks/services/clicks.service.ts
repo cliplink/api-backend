@@ -7,12 +7,13 @@ import { Request } from 'express';
 import { ClickCreatedEvent } from '../../_contracts';
 import { LinkEntity } from '../../links/dao/link.entity';
 import { LinksService } from '../../links/services/links.service';
+import { NATS_SERVICE } from '../../nats/constants';
 
 @Injectable()
 export class ClicksService {
   constructor(
     private readonly linksService: LinksService,
-    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    @Inject(NATS_SERVICE) private readonly natsClient: ClientProxy,
   ) {}
 
   public async getLinkByShortId(
@@ -33,7 +34,7 @@ export class ClicksService {
       occurredAt: new Date().toISOString(),
       ipHash,
       userAgent: req.headers['user-agent'],
-      referrer: req.headers.referer,
+      referer: req.headers.referer,
       //country:,
       forwardedFor: String(req.headers['x-forwarded-for']),
     };
