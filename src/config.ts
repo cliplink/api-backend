@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 import * as process from 'node:process';
 import { DataSourceOptions } from 'typeorm';
