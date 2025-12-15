@@ -25,7 +25,7 @@ export default (): AppConfig => ({
     port: getEnv<number>('REDIS_PORT'),
   },
   linksModule: {
-    linksPartitionCronPattern: getEnv<string>('LINKS_PARTITION_CRON_PATTERN'),
+    linksPartitionCronPattern: getEnv<string>('LINKS_PARTITION_CRON_PATTERN', false) ?? '0 2 * * *',
     partitionTableMonthsToKeep: getEnv<number>('PARTITION_TABLE_MONTHS_TO_KEEP', false) ?? 12,
     partitionTableMoveToArchiveSchema:
       getEnv<boolean>('PARTITION_TABLE_MOVE_TO_ARCHIVE_SCHEMA', false) ?? false,
