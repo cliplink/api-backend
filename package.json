@@ -6,18 +6,19 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "npm run clear && nest build",
+    "clear": "rimraf dist",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
     "migration:run": "npm run build && typeorm migration:run -d dist/database/data-source.js",
     "migration:dev": "typeorm migration:run -d dist/database/data-source.js",
     "test": "jest",
     "test:ci": "jest --runInBand --detectOpenHandles",
-    "dev": "npm run migration:dev && npm run start:dev",
+    "dev": "npm run build && npm run migration:dev && npm run start:dev",
     "ci:test": "npm run migration:run && npm run test:ci",
-    "docker:dev": "docker compose -f ../docker-compose.yml -f ../docker-compose.dev.yml up --build",
-    "docker:test": "docker compose -f ../docker-compose.yml -f ../docker-compose.test.yml up --build --exit-code-from backend-api",
-    "docker:prod": "docker stack deploy -c ../docker-compose.yml -c ../docker-compose.prod.yml cliplink"
+    "docker:dev": "docker compose -f ./docker-compose/docker-compose.yml -f ./docker-compose/docker-compose.dev.yml up --build",
+    "docker:test": "docker compose -f ./docker-compose/docker-compose.yml -f ./docker-compose/docker-compose.test.yml up --build --exit-code-from backend-api",
+    "docker:prod": "docker stack deploy -c ./docker-compose/docker-compose.yml -c ./docker-compose/docker-compose.prod.yml cliplink"
   },
   "dependencies": {
     "@nest-lab/throttler-storage-redis": "^1.1.0",
@@ -68,6 +69,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "jest": "^30.2.0",
     "prettier": "^3.7.4",
+    "rimraf": "^6.1.2",
     "supertest": "^7.0.0",
     "ts-jest": "^29.4.6",
     "ts-loader": "^9.5.4",

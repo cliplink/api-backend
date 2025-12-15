@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   migrate:
     image: cliplink-backend-api:latest
@@ -11,6 +9,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      nats:
+        condition: service_healthy
+      nats-setup:
+        condition: service_completed_successfully
     deploy:
       restart_policy:
         condition: none
@@ -22,10 +24,40 @@ services:
       args:
         NODE_ENV: production
     command: npm run start:prod
+    environment:
+      NATS_SERVER: nats://nats:4222
     depends_on:
       migrate:
+        condition: service_completed_successfully
+      nats:
+        condition: service_healthy
+      nats-setup:
         condition: service_completed_successfully
     deploy:
       replicas: 3
       restart_policy:
         condition: on-failure
+
+  nats:
+    image: nats:2.12.2-alpine
+    command: -js -m 8222 -sd /data/jetstream
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - nats-data:/data/jetstream
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  nats-setup:
+    image: natsio/nats-box:0.19.2
+    depends_on:
+      nats:
+        condition: service_healthy
+    volumes:
+      - ./nats-setup.sh:/nats-setup.sh
+    command: /nats-setup.sh
