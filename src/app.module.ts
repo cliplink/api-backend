@@ -7,11 +7,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { QueueOptions } from 'bullmq';
 
+import { RATE_LIMITER_COMMON } from './_common/app/constants';
 import { type AppConfig } from './_common/types';
 import { AuthModule } from './auth/auth.module';
 import { ClicksModule } from './clicks/clicks.module';
 import config from './config';
-import { RATE_LIMITER_SCOPE_NAME } from './links/constants';
+import { RATE_LIMITER_CREATE_LINKS } from './links/constants';
 import { LinksModule } from './links/links.module';
 import { UsersModule } from './users/users.module';
 
@@ -53,13 +54,23 @@ import { UsersModule } from './users/users.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppConfig>) => {
         const linkModuleConfig = configService.getOrThrow<AppConfig['linksModule']>('linksModule');
+        const rateLimitWindow =
+          configService.getOrThrow<AppConfig['rateLimitWindow']>('rateLimitWindow');
+        const rateLimitMaxRequests =
+          configService.getOrThrow<AppConfig['rateLimitMaxRequests']>('rateLimitMaxRequests');
         const redis = configService.getOrThrow<AppConfig['redis']>('redis');
+
         return {
           throttlers: [
             {
-              name: RATE_LIMITER_SCOPE_NAME,
-              ttl: linkModuleConfig.linkCreateTtl,
-              limit: linkModuleConfig.linkCreateLimit,
+              name: RATE_LIMITER_COMMON,
+              ttl: rateLimitWindow,
+              limit: rateLimitMaxRequests,
+            },
+            {
+              name: RATE_LIMITER_CREATE_LINKS,
+              ttl: linkModuleConfig.rateLimitWindow,
+              limit: linkModuleConfig.rateLimitMaxRequests,
             },
           ],
           storage: new ThrottlerStorageRedisService(`redis://${redis.host}:${redis.port}`),

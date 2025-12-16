@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 import * as process from 'node:process';
 import { DataSourceOptions } from 'typeorm';
@@ -33,12 +33,14 @@ export default (): AppConfig => ({
       getEnv<string>('PARTITION_TABLE_ARCHIVE_SCHEMA_NAME', false) ?? '',
     partitionTableDropOldTable: getEnv<boolean>('PARTITION_TABLE_DROP_OLD_TABLE', false) ?? false,
     linkMaxAgeMonths: getEnv<number>('LINK_MAX_AGE_MONTHS', false) ?? 12,
-    linkCreateTtl: getEnv<number>('LINK_CREATE_TTL', false) ?? 60,
-    linkCreateLimit: getEnv<number>('LINK_CREATE_LIMIT', false) ?? 3,
+    rateLimitWindow: getEnv<number>('LINKS_RATE_LIMIT_WINDOW', false) ?? 60000,
+    rateLimitMaxRequests: getEnv<number>('LINKS_RATE_LIMIT_MAX_REQUESTS', false) ?? 5,
   },
   nats: {
     server: getEnv<string>('NATS_SERVER'),
   },
+  rateLimitWindow: getEnv<number>('RATE_LIMIT_WINDOW', false) ?? 1000,
+  rateLimitMaxRequests: getEnv<number>('RATE_LIMIT_MAX_REQUESTS', false) ?? 5,
 });
 
 function getEnv<T extends string | number | boolean>(envName: string, strict = true): T {

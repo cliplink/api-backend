@@ -13,10 +13,12 @@ export interface AppConfig {
     partitionTableArchiveSchemaName: string;
     partitionTableMoveToArchiveSchema: boolean;
     partitionTableDropOldTable: boolean;
-    linkCreateTtl: number;
-    linkCreateLimit: number;
+    rateLimitWindow: number;
+    rateLimitMaxRequests: number;
   };
   nats: {
     server: string;
   };
+  rateLimitWindow: number;
+  rateLimitMaxRequests: number;
 }

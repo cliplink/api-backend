@@ -5,7 +5,7 @@ import { Throttle } from '@nestjs/throttler';
 import { RequestExtended } from '../../_common/types';
 import { transformToDto } from '../../_common/utils/transform-to-dto';
 import { OptionalJwtAuthGuard } from '../../auth/guards/optional-jwt-auth.guard';
-import { RATE_LIMITER_SCOPE_NAME } from '../constants';
+import { RATE_LIMITER_CREATE_LINKS } from '../constants';
 import { CreateLinkDto, LinkDto } from '../dto';
 import { LinksService } from '../services/links.service';
 
@@ -14,7 +14,7 @@ import { LinksService } from '../services/links.service';
 export class LinksController {
   constructor(private readonly linksService: LinksService) {}
 
-  @Throttle({ [RATE_LIMITER_SCOPE_NAME]: {} })
+  @Throttle({ [RATE_LIMITER_CREATE_LINKS]: {} })
   @Post()
   @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Create short link' })

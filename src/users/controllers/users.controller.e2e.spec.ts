@@ -2,15 +2,18 @@ import { Server } from 'node:http';
 
 import { faker } from '@faker-js/faker';
 import { HttpStatus, type INestApplication } from '@nestjs/common';
-import { type TestingModule } from '@nestjs/testing';
+import { Test, type TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { type Repository } from 'typeorm';
 
 import { clearTables } from '../../_common/utils/tests/clear-tables';
-import { createTestingModuleAndApp } from '../../_common/utils/tests/create-testing-module-and-app';
+import { createTestingAppAndHttpServer } from '../../_common/utils/tests/create-testing-app-and-http-server';
 import { getRepository } from '../../_common/utils/tests/get-repository';
+import { getTestingModuleImports } from '../../_common/utils/tests/get-testing-module-imports';
+import { LinkEntity } from '../../links/dao/link.entity';
 import { MIN_PASSWORD_LENGTH } from '../constants';
 import { UserEntity } from '../dao/user.entity';
+import { UsersModule } from '../users.module';
 
 describe('users.controller.e2e.spec.ts', () => {
   let app: INestApplication,
@@ -21,9 +24,11 @@ describe('users.controller.e2e.spec.ts', () => {
   const url = '/users';
 
   beforeAll(async () => {
-    ({ testingModule, app } = await createTestingModuleAndApp());
+    testingModule = await Test.createTestingModule({
+      imports: [...getTestingModuleImports([UserEntity, LinkEntity]), UsersModule],
+    }).compile();
 
-    httpServer = app.getHttpServer();
+    ({ app, httpServer } = await createTestingAppAndHttpServer(testingModule));
 
     usersRepository = getRepository<UserEntity>(testingModule, UserEntity);
   });

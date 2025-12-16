@@ -28,8 +28,8 @@ export class LinkEntity {
   @Column({ type: 'varchar', nullable: true, name: 'user_id' })
   public userId: string | null;
 
-  @Column({ type: 'timestamptz', nullable: false, name: 'expires_at' })
-  public expiresAt: Date;
+  @Column({ type: 'timestamptz', nullable: true, name: 'expires_at' })
+  public expiresAt: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz', default: 'now()', name: 'created_at' })
   public createdAt: Date;
