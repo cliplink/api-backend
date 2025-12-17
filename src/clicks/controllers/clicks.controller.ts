@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Redirect, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Request } from 'express';
 
 import { ClickDto } from '../dto';
@@ -10,6 +11,7 @@ import { ClicksService } from '../services/clicks.service';
 export class ClicksController {
   constructor(private readonly clicksService: ClicksService) {}
 
+  @SkipThrottle()
   @Get(':shortId')
   @ApiOperation({ summary: 'Redirect to target URL by short ID' })
   @ApiResponse({ status: 302, description: 'Redirect to target URL', type: ClickDto })

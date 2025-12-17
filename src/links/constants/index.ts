@@ -8,4 +8,4 @@ export const PARTITION_SCHEDULER_ID = 'links-partition-scheduler';
 export const PARTITION_JOB_NAME = 'create-link-table-partition';
 
 //
-export const RATE_LIMITER_SCOPE_NAME = 'links-microservice.link-module.rate-limiter';
+export const RATE_LIMITER_CREATE_LINKS = 'links-microservice.link-module.create-links.rate-limiter';

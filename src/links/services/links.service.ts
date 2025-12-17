@@ -4,12 +4,12 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config';
 import { compareAsc, subMonths } from 'date-fns';
 
+import { AppConfig } from '../../_common/types';
 import { type CreateLink } from '../../_contracts';
 import { PostgresErrorCode } from '../../database/postgres-error-codes.enum';
 import { ALPHABET, ALPHABET_LEN, SHORT_ID_LEN } from '../constants';
 import { LinkEntity } from '../dao/link.entity';
 import { LinksRepository } from '../repositories/links.reposiory';
-import { AppConfig } from '../../_common/types';
 
 @Injectable()
 export class LinksService {
@@ -54,7 +54,7 @@ export class LinksService {
       throw new NotFoundException('Link not found');
     }
 
-    if (link.expiresAt.getTime() < new Date().getTime()) {
+    if (link.expiresAt && link.expiresAt.getTime() < new Date().getTime()) {
       throw new NotFoundException('Link has expired');
     }
 
