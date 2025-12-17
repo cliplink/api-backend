@@ -50,7 +50,7 @@ describe('clicks.controller.e2e.spec.ts', () => {
   });
 
   afterEach(async () => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   afterAll(async () => {
@@ -58,10 +58,12 @@ describe('clicks.controller.e2e.spec.ts', () => {
   });
 
   describe('GET /clicks/:shortId', () => {
-    const shortId = faker.string.sample(8);
+    let shortId: string;
     let link: LinkEntity;
 
     beforeEach(async () => {
+      shortId = faker.string.sample(8);
+
       link = {
         id: faker.number.int().toString(),
         userId: null,
@@ -74,7 +76,7 @@ describe('clicks.controller.e2e.spec.ts', () => {
     });
 
     it('should redirect', async () => {
-      clicksService.getLinkByShortId.mockResolvedValue(Promise.resolve(link));
+      clicksService.getLinkByShortId.mockResolvedValueOnce(Promise.resolve(link));
 
       const result = await request(httpServer)
         .get(`${url}/${link.shortId}`)
@@ -86,7 +88,7 @@ describe('clicks.controller.e2e.spec.ts', () => {
 
     it('should return 404 if link not found', async () => {
       link.shortId = faker.string.sample(8);
-      clicksService.getLinkByShortId.mockRejectedValue(new NotFoundException());
+      clicksService.getLinkByShortId.mockRejectedValueOnce(new NotFoundException());
 
       await request(httpServer)
         .get(`${url}/${faker.string.sample(8)}`)
