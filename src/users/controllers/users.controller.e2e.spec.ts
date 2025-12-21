@@ -41,10 +41,6 @@ describe('users.controller.e2e.spec.ts', () => {
     await clearTables(testingModule);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('POST /users', () => {
     let userData: { email?: string; password?: string };
     beforeEach(() => {

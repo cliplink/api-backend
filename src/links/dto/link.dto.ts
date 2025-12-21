@@ -3,7 +3,6 @@ import { Expose } from 'class-transformer';
 
 import { TransformToDateString } from '../../_common/utils/decorators/transform-to-date-string.decorator';
 import { Link } from '../../_contracts';
-import { UserDto } from '../../users/dto/user.dto';
 
 export class LinkDto implements Link {
   @ApiProperty()
@@ -16,23 +15,20 @@ export class LinkDto implements Link {
 
   @ApiProperty({ nullable: true })
   @Expose()
-  @TransformToDateString()
   public userId: string | null;
 
   @ApiProperty()
   @Expose()
+  @TransformToDateString()
   public expiresAt: string;
 
   @ApiProperty()
   @Expose()
+  @TransformToDateString()
   createdAt: string;
 
   @ApiProperty()
   @Expose()
-  deletedAt: string | null;
-
-  @ApiProperty({ nullable: true, type: UserDto })
-  @Expose()
   @TransformToDateString()
-  user?: UserDto | null;
+  deletedAt: string | null;
 }
