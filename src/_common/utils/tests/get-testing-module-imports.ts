@@ -21,7 +21,7 @@ export const getTestingModuleImports = (entities?: Function[]) => {
         return {
           ...opts,
           autoLoadEntities: false,
-          entities: entities ?? [],
+          entities: entities ?? undefined,
         };
       },
     }),

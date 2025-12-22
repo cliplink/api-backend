@@ -58,16 +58,13 @@ describe('clicks.controller.e2e.spec.ts', () => {
   });
 
   describe('GET /clicks/:shortId', () => {
-    let shortId: string;
     let link: LinkEntity;
 
     beforeEach(async () => {
-      shortId = faker.string.sample(8);
-
       link = {
         id: faker.number.int().toString(),
         userId: null,
-        shortId,
+        shortId: faker.string.sample(8),
         target: faker.internet.url(),
         expiresAt: addDays(new Date(), 1),
         createdAt: new Date(),

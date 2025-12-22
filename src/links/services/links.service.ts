@@ -2,7 +2,7 @@ import * as crypto from 'node:crypto';
 
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { compareAsc, subMonths } from 'date-fns';
+import { addMonths, compareAsc } from 'date-fns';
 
 import { AppConfig } from '../../_common/types';
 import { type CreateLink } from '../../_contracts';
@@ -24,7 +24,10 @@ export class LinksService {
   }
 
   public async create(data: CreateLink): Promise<LinkEntity> {
-    if (compareAsc(data.expiresAt, subMonths(new Date(), this.linkMaxAgeMonths)) < 0) {
+    if (compareAsc(data.expiresAt, new Date()) < 0) {
+      throw new BadRequestException('expiresAt must be after current date');
+    }
+    if (compareAsc(data.expiresAt, addMonths(new Date(), this.linkMaxAgeMonths)) === 1) {
       throw new BadRequestException('expiresAt must be less than 1 year ago');
     }
 
