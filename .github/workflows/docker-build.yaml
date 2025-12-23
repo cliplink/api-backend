@@ -21,19 +21,12 @@ jobs:
           node-version: 20
 
       - name: Determine version bump
-        id: bump
         run: |
           set -e
 
-          # Let's check if there are any tags at all
-          if git tag | grep -q .; then
-            latest_tag=$(git describe --tags --abbrev=0)
-            IFS='.' read -r major minor patch <<< "${latest_tag#v}"
-          else
-            major=0
-            minor=0
-            patch=0
-          fi
+          # Current version from package.json
+          current_version=$(node -p "require('./package.json').version")
+          IFS='.' read -r major minor patch <<< "$current_version"
 
           commit_msg=$(git log -1 --pretty=%B)
 
