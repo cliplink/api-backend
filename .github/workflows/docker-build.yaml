@@ -23,12 +23,21 @@ jobs:
       - name: Determine version bump
         id: bump
         run: |
-          latest_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
-          IFS='.' read -r major minor patch <<< "${latest_tag#v}"
+          set -e
 
-          # Check last commit in workflow_run
-          commits=$(git log origin/main -1 --pretty=%B)
-          if [[ "$commits" == feat:* ]]; then
+          # Let's check if there are any tags at all
+          if git tag | grep -q .; then
+            latest_tag=$(git describe --tags --abbrev=0)
+            IFS='.' read -r major minor patch <<< "${latest_tag#v}"
+          else
+            major=0
+            minor=0
+            patch=0
+          fi
+
+          commit_msg=$(git log -1 --pretty=%B)
+
+          if [[ "$commit_msg" == feat:* ]]; then
             minor=$((minor + 1))
             patch=0
           else
@@ -36,7 +45,9 @@ jobs:
           fi
 
           new_version="$major.$minor.$patch"
-          npm version $new_version --no-git-tag-version
+          echo "New version: $new_version"
+
+          npm version "$new_version" --no-git-tag-version
 
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
