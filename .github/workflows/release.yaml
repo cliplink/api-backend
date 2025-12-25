@@ -5,23 +5,25 @@ permissions:
   packages: write
 
 on:
-  workflow_run:
-    workflows: ["Tests"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
-  release:
-    if: >
-      ${{ github.event.workflow_run.conclusion == 'success' &&
-          github.event.workflow_run.head_branch == 'main' }}
-    runs-on: ubuntu-latest
+  run-tests:
+    uses: ./.github/workflows/tests.yaml
 
+  build-contracts:
+    uses: ./.github/workflows/contracts-build.yaml
+
+  release:
+    needs: run-tests
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20

@@ -5,11 +5,7 @@ permissions:
   packages: write
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/_contracts/**'
+  workflow_call:
 
 jobs:
   publish:
