@@ -64,7 +64,7 @@ describe('clicks.controller.e2e.spec.ts', () => {
       link = {
         id: faker.number.int().toString(),
         userId: null,
-        shortId: faker.string.sample(8),
+        shortId: faker.string.alphanumeric(8),
         target: faker.internet.url(),
         expiresAt: addDays(new Date(), 1),
         createdAt: new Date(),
@@ -84,11 +84,11 @@ describe('clicks.controller.e2e.spec.ts', () => {
     });
 
     it('should return 404 if link not found', async () => {
-      link.shortId = faker.string.sample(8);
+      link.shortId = faker.string.alphanumeric(8);
       clicksService.getLinkByShortId.mockRejectedValueOnce(new NotFoundException());
 
       await request(httpServer)
-        .get(`${url}/${faker.string.sample(8)}`)
+        .get(`${url}/${faker.string.alphanumeric(8)}`)
         .expect(HttpStatus.NOT_FOUND);
 
       expect(clicksService.publishClickEvent).toHaveBeenCalledTimes(0);
