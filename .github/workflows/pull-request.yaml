@@ -13,5 +13,5 @@ on:
       - synchronize
 
 jobs:
-  run-tests:
+  linter-and-tests:
     uses: ./.github/workflows/tests.yaml
