@@ -14,6 +14,7 @@ jobs:
     uses: ./.github/workflows/tests.yaml
 
   build-contracts:
+    needs: run-tests
     uses: ./.github/workflows/contracts-build.yaml
 
   release:
