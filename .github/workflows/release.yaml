@@ -18,11 +18,13 @@ jobs:
     uses: ./.github/workflows/contracts-build.yaml
 
   release:
-    needs: run-tests
+    needs: [run-tests, build-contracts]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
