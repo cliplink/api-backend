@@ -1,0 +1,17 @@
+name: Tests
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/tests.yaml
