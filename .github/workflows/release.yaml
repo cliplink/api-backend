@@ -17,9 +17,11 @@ jobs:
     needs: run-tests
     uses: ./.github/workflows/contracts-build.yaml
 
-  release:
+  bump-version:
     needs: [run-tests, build-contracts]
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,7 +34,19 @@ jobs:
           node-version: 20
 
       - name: Bump backend version
-        run: .github/scripts/bump-version.sh ./package.json ""
+        id: bump
+        run: |
+          .github/scripts/bump-version.sh ./package.json ""
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+  build-and-push:
+    needs: bump-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
@@ -49,4 +63,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/backend:latest
-            ghcr.io/${{ github.repository_owner }}/backend:v${{ env.NEW_VERSION }}
+            ghcr.io/${{ github.repository_owner }}/backend:v${{ needs.bump-version.outputs.new_version }}
