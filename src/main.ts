@@ -14,6 +14,8 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.disable('x-powered-by');
 
+  app.enableCors();
+
   app.useGlobalFilters(new QueryFailedFilter());
   app.useGlobalPipes(new ValidationPipe(getValidationPipeParams(true)));
 
