@@ -9,9 +9,11 @@ IFS='.' read -r major minor patch <<< "$current_version"
 
 commit_msg=$(git log -1 --pretty=%B)
 
-if [[ "$commit_msg" == feat:* ]]; then
+if echo "$commit_msg" | grep -qE 'from .*/feat/'; then
   minor=$((minor + 1))
   patch=0
+elif echo "$commit_msg" | grep -qE 'from .*/fix/'; then
+  patch=$((patch + 1))
 else
   patch=$((patch + 1))
 fi
