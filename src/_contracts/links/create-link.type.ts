@@ -1,5 +1,5 @@
 export interface CreateLink {
   target: string;
-  expiresAt: Date;
+  expiresAt: string;
   userId?: string | null;
 }
