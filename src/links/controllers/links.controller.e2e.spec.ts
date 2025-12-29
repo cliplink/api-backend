@@ -59,7 +59,7 @@ describe('links.controller.e2e.spec.ts', () => {
 
     linkData = {
       target: faker.internet.url(),
-      expiresAt: faker.date.future(),
+      expiresAt: faker.date.future().toISOString(),
     };
   });
 
@@ -76,7 +76,7 @@ describe('links.controller.e2e.spec.ts', () => {
       shortId: expect.any(String),
       target: linkData.target,
       userId: null,
-      expiresAt: linkData.expiresAt.toISOString(),
+      expiresAt: linkData.expiresAt,
       createdAt: expect.any(String),
       deletedAt: null,
     });
@@ -84,7 +84,7 @@ describe('links.controller.e2e.spec.ts', () => {
 
   describe('expiresAt field checks', () => {
     it('should return error if expiresAt is in the past', async () => {
-      linkData.expiresAt = faker.date.past();
+      linkData.expiresAt = faker.date.past().toISOString();
       await request(httpServer).post(url).send(linkData).expect(HttpStatus.BAD_REQUEST);
     });
 
@@ -92,7 +92,7 @@ describe('links.controller.e2e.spec.ts', () => {
       linkData.expiresAt = addMonths(
         new Date(),
         configService.getOrThrow<number>('linksModule.linkMaxAgeMonths') + 12,
-      );
+      ).toISOString();
       await request(httpServer).post(url).send(linkData).expect(HttpStatus.BAD_REQUEST);
     });
 

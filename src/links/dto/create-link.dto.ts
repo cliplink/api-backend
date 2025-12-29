@@ -15,5 +15,5 @@ export class CreateLinkDto implements CreateLink {
   @Expose()
   @TransformToDate()
   @IsDate()
-  public expiresAt: Date;
+  public expiresAt: string;
 }

@@ -26,7 +26,7 @@ const makeLinkEntity = (overrides: Partial<LinkEntity> = {}): LinkEntity => ({
 
 const makeCreateLinkDto = (overrides: Partial<CreateLink> = {}): CreateLink => ({
   target: faker.internet.url(),
-  expiresAt: new Date(Date.now() + 60_000),
+  expiresAt: new Date(Date.now() + 60_000).toISOString(),
   userId: null,
   ...overrides,
 });
@@ -69,7 +69,7 @@ describe('LinksService', () => {
     it('throws if expiresAt is in the past', async () => {
       const dto: CreateLink = {
         target: faker.internet.url(),
-        expiresAt: new Date(Date.now() - 1000),
+        expiresAt: new Date(Date.now() - 1000).toISOString(),
       };
 
       await expect(service.create(dto)).rejects.toBeInstanceOf(BadRequestException);
@@ -81,7 +81,7 @@ describe('LinksService', () => {
 
       const dto: CreateLink = {
         target: faker.internet.url(),
-        expiresAt,
+        expiresAt: expiresAt.toISOString(),
       };
 
       await expect(service.create(dto)).rejects.toBeInstanceOf(BadRequestException);
