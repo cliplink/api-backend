@@ -1,22 +1,31 @@
 import { createHash } from 'node:crypto';
 
+import { CLICK_CREATED_SUBJECT } from '@cliplink/click-worker-contracts';
+import { NATS_CONNECTION_SERVICE } from '@cliplink/utils';
 import { faker } from '@faker-js/faker';
-import { ClientProxy } from '@nestjs/microservices';
+import { jetstream } from '@nats-io/jetstream';
 import { Test, TestingModule } from '@nestjs/testing';
 import { type Request } from 'express';
 
 import { ClicksService } from './clicks.service';
 import { LinkEntity } from '../../links/dao/link.entity';
 import { LinksService } from '../../links/services/links.service';
-import { NATS_SERVICE } from '../../nats/constants';
+
+jest.mock('@nats-io/jetstream', () => ({
+  jetstream: jest.fn(),
+}));
 
 describe('ClickService', () => {
   let module: TestingModule;
   let clickService: ClicksService;
   let linkService: jest.Mocked<LinksService>;
-  let natsClient: jest.Mocked<ClientProxy>;
+  const mockJetStreamClient = {
+    publish: jest.fn(),
+  };
 
   beforeEach(async () => {
+    (jetstream as jest.Mock).mockReturnValue(mockJetStreamClient);
+
     module = await Test.createTestingModule({
       providers: [
         ClicksService,
@@ -27,17 +36,18 @@ describe('ClickService', () => {
           },
         },
         {
-          provide: NATS_SERVICE,
-          useValue: {
-            emit: jest.fn(),
-          },
+          provide: NATS_CONNECTION_SERVICE,
+          useValue: {},
         },
       ],
     }).compile();
 
     clickService = module.get(ClicksService);
     linkService = module.get(LinksService);
-    natsClient = module.get(NATS_SERVICE);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('getLinkByShortId method', () => {
@@ -56,7 +66,7 @@ describe('ClickService', () => {
   });
 
   describe('publishClickEvent method', () => {
-    it('should publish click event with ip if ip exists', async () => {
+    it('should publish click event to JetStream with ip if ip exists', async () => {
       const link = { id: 'link-id' } as LinkEntity;
       const ip = faker.internet.ip();
       const req = {
@@ -70,20 +80,41 @@ describe('ClickService', () => {
 
       const expectedIpHash = createHash('sha256').update(ip).digest('hex');
 
-      clickService.publishClickEvent(link, req);
+      await clickService.publishClickEvent(link, req);
 
-      expect(natsClient.emit).toHaveBeenCalledTimes(1);
-      expect(natsClient.emit).toHaveBeenCalledWith(
-        'click.created',
+      expect(mockJetStreamClient.publish).toHaveBeenCalledTimes(1);
+      const [subject, payload] = mockJetStreamClient.publish.mock.calls[0];
+
+      expect(subject).toBe(CLICK_CREATED_SUBJECT);
+
+      const decodedEvent = JSON.parse(new TextDecoder().decode(payload));
+      expect(decodedEvent).toEqual(
         expect.objectContaining({
           linkId: link.id,
           occurredAt: expect.any(String),
           ipHash: expectedIpHash,
           userAgent: req.headers['user-agent'],
           referer: req.headers['referer'],
-          forwardedFor: req.headers['x-forwarded-for'],
+          forwardedFor: String(req.headers['x-forwarded-for']),
         }),
       );
+    });
+
+    it('should publish click event without ipHash if ip is missing', async () => {
+      const link = { id: 'link-id' } as LinkEntity;
+      const req = {
+        headers: {
+          'user-agent': faker.internet.userAgent(),
+        },
+      } as unknown as Request;
+
+      await clickService.publishClickEvent(link, req);
+
+      expect(mockJetStreamClient.publish).toHaveBeenCalledTimes(1);
+      const [, payload] = mockJetStreamClient.publish.mock.calls[0];
+      const decodedEvent = JSON.parse(new TextDecoder().decode(payload));
+
+      expect(decodedEvent.ipHash).toBeUndefined();
     });
   });
 });

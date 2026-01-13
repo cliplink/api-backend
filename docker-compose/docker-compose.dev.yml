@@ -14,6 +14,7 @@ services:
       context: ..
       args:
         NODE_ENV: development
+        CLIPLINK_PACKAGES_TOKEN: ${CLIPLINK_PACKAGES_TOKEN}
     command: npm run dev
     volumes:
       - ../:/app
@@ -28,8 +29,27 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
-      nats-setup:
-        condition: service_completed_successfully
+
+  click-worker:
+    image: ghcr.io/cliplink/click-worker:latest
+    environment:
+      PORT: 4001
+      APP_NAME: click-worker
+      NATS_SERVER: nats://nats:4222
+      NATS_STREAM_NAME: CLICKS
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_LOGIN: user
+      DB_PASSWORD: password
+      DB_NAME: cliplink
+      DB_ENABLE_LOGGING: false
+    ports:
+      - "4001:4001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
 
   nats:
     image: nats:2.12.2-alpine
@@ -46,15 +66,9 @@ services:
       retries: 10
       start_period: 10s
 
-  nats-setup:
+  nats-box:
     image: natsio/nats-box:0.19.2
     depends_on:
       nats:
         condition: service_healthy
-    volumes:
-      - ./nats-setup.sh:/nats-setup.sh
-    environment:
-      NATS_STREAM_NAME: CLICKS
-      NATS_SUBJECTS: "click.*"
-      NATS_SERVER: "nats:4222"
-    entrypoint: [ "/bin/sh", "/nats-setup.sh" ]
+    command: sh -c "nats context save local --server=nats:4222 --select && tail -f /dev/null"
