@@ -2,9 +2,9 @@ services:
   redis:
     image: redis:8.4-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5
@@ -12,6 +12,7 @@ services:
   backend-api:
     build:
       context: ..
+      target: development
       args:
         NODE_ENV: development
         CLIPLINK_PACKAGES_TOKEN: ${CLIPLINK_PACKAGES_TOKEN}
@@ -19,7 +20,7 @@ services:
     volumes:
       - ../:/app
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       NATS_SERVER: nats://nats:4222
     depends_on:
@@ -44,7 +45,7 @@ services:
       DB_NAME: cliplink
       DB_ENABLE_LOGGING: false
     ports:
-      - "4001:4001"
+      - '4001:4001'
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,12 +56,12 @@ services:
     image: nats:2.12.2-alpine
     command: -js -m 8222 -sd /data/jetstream
     ports:
-      - "4222:4222"
-      - "8222:8222"
+      - '4222:4222'
+      - '8222:8222'
     volumes:
       - nats-data:/data/jetstream
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8222/healthz']
       interval: 5s
       timeout: 5s
       retries: 10

@@ -1,4 +1,21 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+ARG CLIPLINK_PACKAGES_TOKEN
+ENV CLIPLINK_PACKAGES_TOKEN=${CLIPLINK_PACKAGES_TOKEN}
+
+COPY .npmrc ./
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+## Development
+FROM node:20-alpine AS development
 
 WORKDIR /app
 
@@ -11,10 +28,28 @@ ENV CLIPLINK_PACKAGES_TOKEN=${CLIPLINK_PACKAGES_TOKEN}
 COPY .npmrc ./
 COPY package*.json ./
 
-RUN if [ "$NODE_ENV" = "production" ]; then npm ci --omit=dev; else npm install; fi
+RUN npm install
 
 COPY . .
 
-RUN if [ "$NODE_ENV" = "production" ]; then npm run build; fi
+CMD ["npm", "run", "start:dev"]
 
-CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"production\" ]; then node dist/main.js; else npm run start:dev; fi"]
+## Production
+FROM node:20-alpine AS production
+
+WORKDIR /app
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+ARG CLIPLINK_PACKAGES_TOKEN
+ENV CLIPLINK_PACKAGES_TOKEN=${CLIPLINK_PACKAGES_TOKEN}
+
+COPY .npmrc ./
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+CMD ["node", "dist/main.js"]
