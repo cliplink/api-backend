@@ -62,10 +62,10 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          target: production
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/backend:latest
             ghcr.io/${{ github.repository_owner }}/backend:v${{ needs.bump-version.outputs.new_version }}
           build-args: |
             CLIPLINK_PACKAGES_TOKEN=${{ secrets.CLIPLINK_PACKAGES_TOKEN }}
-            NODE_ENV=production

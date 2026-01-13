@@ -2,11 +2,12 @@ services:
   backend-api:
     build:
       context: ../
+      target: development
       args:
         NODE_ENV: development
         CLIPLINK_PACKAGES_TOKEN: ${CLIPLINK_PACKAGES_TOKEN}
     command: npm run ci:test
-    restart: "no"
+    restart: 'no'
     depends_on:
       postgres:
         condition: service_healthy
