@@ -19,6 +19,7 @@ const databaseConnectionOptions: DataSourceOptions = {
 };
 
 export default (): AppConfig => ({
+  appName: getEnv<string>('APP_NAME', true),
   databaseConnectionOptions,
   redis: {
     host: getEnv<string>('REDIS_HOST', true),

@@ -1,3 +1,4 @@
+import { NatsModule } from '@cliplink/utils';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     throttler,
     bullMq,
     typeOrm,
+    NatsModule,
     AuthModule,
     ClicksModule,
     LinksModule,

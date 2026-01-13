@@ -12,6 +12,7 @@ on:
 jobs:
   run-tests:
     uses: ./.github/workflows/tests.yaml
+    secrets: inherit
 
   build-contracts:
     needs: run-tests
@@ -37,6 +38,7 @@ jobs:
         id: bump
         run: |
           .github/scripts/bump-version.sh ./package.json ""
+          NEW_VERSION=$(node -p "require('./package.json').version")
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
   build-and-push:
@@ -64,3 +66,6 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/backend:latest
             ghcr.io/${{ github.repository_owner }}/backend:v${{ needs.bump-version.outputs.new_version }}
+          build-args: |
+            CLIPLINK_PACKAGES_TOKEN=${{ secrets.CLIPLINK_PACKAGES_TOKEN }}
+            NODE_ENV=production

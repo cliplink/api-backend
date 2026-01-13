@@ -4,12 +4,14 @@ services:
       context: ../
       args:
         NODE_ENV: development
+        CLIPLINK_PACKAGES_TOKEN: ${CLIPLINK_PACKAGES_TOKEN}
     command: npm run ci:test
     restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
     environment:
+      APP_NAME: backend-api
       DB_HOST: postgres
       DB_PORT: 5432
       DB_LOGIN: user

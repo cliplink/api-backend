@@ -1,5 +1,6 @@
 import type { Server } from 'node:http';
 
+import { NATS_CONNECTION_SERVICE } from '@cliplink/utils';
 import { faker } from '@faker-js/faker';
 import { HttpStatus, INestApplication, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -10,7 +11,6 @@ import { ClicksController } from './clicks.controller';
 import { createTestingAppAndHttpServer } from '../../_common/utils/tests/create-testing-app-and-http-server';
 import { type LinkEntity } from '../../links/dao/link.entity';
 import { LinksService } from '../../links/services/links.service';
-import { NATS_SERVICE } from '../../nats/constants';
 import { ClicksService } from '../services/clicks.service';
 
 describe('clicks.controller.e2e.spec.ts', () => {
@@ -34,14 +34,12 @@ describe('clicks.controller.e2e.spec.ts', () => {
         },
       ],
     })
-      .overrideProvider(NATS_SERVICE)
+      .overrideProvider(NATS_CONNECTION_SERVICE)
       .useValue({
         emit: jest.fn(),
       })
       .overrideProvider(LinksService)
-      .useValue({
-        getByShortId: jest.fn(),
-      })
+      .useValue({})
       .compile();
 
     ({ app, httpServer } = await createTestingAppAndHttpServer(testingModule));

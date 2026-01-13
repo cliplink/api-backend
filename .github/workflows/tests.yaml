@@ -15,6 +15,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Create .npmrc for GitHub Packages
+        run: |
+          echo "@cliplink:registry=https://npm.pkg.github.com" > .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.CLIPLINK_PACKAGES_TOKEN }}" >> .npmrc
+
       - name: Install dependencies
         run: npm ci
 
@@ -29,6 +34,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run tests in Docker
+        env:
+          CLIPLINK_PACKAGES_TOKEN: ${{ secrets.CLIPLINK_PACKAGES_TOKEN }}
         run: |
           docker compose \
             -f ./docker-compose/docker-compose.yml \

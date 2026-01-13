@@ -22,7 +22,7 @@ export class ClicksController {
   ): Promise<ClickDto> {
     const link = await this.clicksService.getLinkByShortId(shortId);
 
-    this.clicksService.publishClickEvent(link, req);
+    await this.clicksService.publishClickEvent(link, req);
 
     return { url: link.target, statusCode: 302 };
   }

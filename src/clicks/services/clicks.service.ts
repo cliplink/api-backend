@@ -1,20 +1,26 @@
 import { createHash } from 'node:crypto';
 
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { CLICK_CREATED_SUBJECT, ClickCreatedEvent } from '@cliplink/click-worker-contracts';
+import { NATS_CONNECTION_SERVICE } from '@cliplink/utils';
+import { jetstream, JetStreamClient, PubAck } from '@nats-io/jetstream';
+import type { NatsConnection } from '@nats-io/nats-core';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Request } from 'express';
 
-import { ClickCreatedEvent } from '../../_contracts';
 import { LinkEntity } from '../../links/dao/link.entity';
 import { LinksService } from '../../links/services/links.service';
-import { NATS_SERVICE } from '../../nats/constants';
 
 @Injectable()
 export class ClicksService {
+  private readonly logger = new Logger(ClicksService.name);
+  private readonly jetStreamClient: JetStreamClient;
+
   constructor(
     private readonly linksService: LinksService,
-    @Inject(NATS_SERVICE) private readonly natsClient: ClientProxy,
-  ) {}
+    @Inject(NATS_CONNECTION_SERVICE) private readonly nc: NatsConnection,
+  ) {
+    this.jetStreamClient = jetstream(this.nc);
+  }
 
   public async getLinkByShortId(
     shortId: string,
@@ -22,7 +28,7 @@ export class ClicksService {
     return this.linksService.getByShortId(shortId);
   }
 
-  public publishClickEvent(link: LinkEntity, req: Request): void {
+  public publishClickEvent(link: LinkEntity, req: Request): Promise<PubAck> {
     let ipHash: string | undefined;
 
     if (req.ip) {
@@ -39,6 +45,14 @@ export class ClicksService {
       forwardedFor: String(req.headers['x-forwarded-for']),
     };
 
-    this.natsClient.emit('click.created', event);
+    const sc = new TextEncoder();
+    const payload = sc.encode(JSON.stringify(event));
+
+    try {
+      return this.jetStreamClient.publish(CLICK_CREATED_SUBJECT, payload);
+    } catch (err) {
+      this.logger.error(`Error publishing to ${CLICK_CREATED_SUBJECT}`, err);
+      throw err;
+    }
   }
 }

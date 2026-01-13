@@ -5,6 +5,10 @@ WORKDIR /app
 ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
+ARG CLIPLINK_PACKAGES_TOKEN
+ENV CLIPLINK_PACKAGES_TOKEN=${CLIPLINK_PACKAGES_TOKEN}
+
+COPY .npmrc ./
 COPY package*.json ./
 
 RUN if [ "$NODE_ENV" = "production" ]; then npm ci --omit=dev; else npm install; fi
